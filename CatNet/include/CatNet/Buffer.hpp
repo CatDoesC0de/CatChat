@@ -1,0 +1,41 @@
+#pragma once
+
+#include <string>
+#include <cstdint>
+#include <memory>
+
+
+namespace CatNet
+{
+
+    class TCPSocket;
+
+    class Buffer
+    {
+
+    public:
+        Buffer(unsigned int sizeBytes);
+
+        void int16(int16_t value);
+        void int32(int32_t value);
+        void string(std::string& string);
+
+        int receive(TCPSocket socket);
+
+        uint8_t *get();
+        void reserve(size_t capacityInBytes);
+
+        void clear();
+        unsigned int size() const;
+        unsigned int capacity() const;
+
+    private:
+        void write(const void *data, size_t sizeInBytes);
+
+        std::unique_ptr<uint8_t[]> m_buffer;
+
+        unsigned int m_capacity;
+        unsigned int m_limit;
+    };
+
+}

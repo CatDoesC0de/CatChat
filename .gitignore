@@ -1,0 +1,6 @@
+/.vscode
+
+#Build
+build
+Makefile
+*.make

@@ -1,0 +1,34 @@
+#pragma once
+
+#include <cstdint>
+#include <string>
+#include <optional>
+
+#include "Buffer.hpp"
+
+namespace CatNet
+{
+
+    class TCPSocket
+    {
+    public:
+        TCPSocket(int descriptor);
+
+        int descriptor() const;
+
+        bool bind(const char *ip, uint16_t port);
+        bool listen(int backlog);
+
+        bool connect(const char *ip, uint16_t port);
+        std::optional<TCPSocket> accept();
+
+        int send(Buffer &buffer);
+
+        bool blocking(bool isBlocking);
+
+        static std::optional<TCPSocket> Create();
+
+    private:
+        int m_descriptor;
+    };
+}
