@@ -2,7 +2,7 @@
 
 #include "CatNet/TCPSocket.hpp"
 #include "CatNet/Buffer.hpp"
-#include "CatNet/BufferSnapshot.hpp"
+#include "CatNet/BufferView.hpp"
 
 #include "ConnectionHandler.hpp"
 
@@ -21,7 +21,7 @@ int main()
         return -1;
     }
 
-    auto listeningSocket = socketOptional.value();
+    auto listeningSocket = std::move(socketOptional.value());
 
     if (!listeningSocket.bind("127.0.0.1", PORT))
     {
@@ -39,6 +39,6 @@ int main()
 
     listeningSocket.blocking(false);
 
-    ConnectionHandler connectionHandler(listeningSocket);
+    ConnectionHandler connectionHandler(std::move(listeningSocket));
     connectionHandler.poll();
 }

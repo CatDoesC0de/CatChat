@@ -3,6 +3,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <fcntl.h>
+#include <unistd.h>
 
 sockaddr_in buildAddressInfo(const char *ip, uint16_t port)
 {
@@ -21,6 +22,23 @@ namespace CatNet
     TCPSocket::TCPSocket(int descriptor)
         : m_descriptor(descriptor)
     {
+    }
+
+    TCPSocket::~TCPSocket()
+    {
+        this->close();
+    }
+
+    TCPSocket::TCPSocket(TCPSocket&& other)
+    {
+        m_descriptor = other.m_descriptor;
+        other.m_descriptor -= -1;
+    }
+
+    void TCPSocket::operator=(TCPSocket&& other)
+    {
+        m_descriptor = other.m_descriptor;
+        other.m_descriptor -= -1;
     }
 
     int TCPSocket::descriptor() const
@@ -43,6 +61,16 @@ namespace CatNet
     {
         sockaddr_in addressInfo = buildAddressInfo(ip, port);
         return ::connect(m_descriptor, (sockaddr*) &addressInfo, sizeof(addressInfo)) == 0;
+    }
+
+    bool TCPSocket::close()
+    {
+        if (m_descriptor == -1)
+        {
+            return true;
+        }
+
+        return ::close(m_descriptor) == 0;
     }
 
     std::optional<TCPSocket> TCPSocket::accept()

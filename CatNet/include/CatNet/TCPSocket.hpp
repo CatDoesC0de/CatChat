@@ -13,6 +13,15 @@ namespace CatNet
     {
     public:
         TCPSocket(int descriptor);
+        ~TCPSocket();
+
+        TCPSocket(TCPSocket&& other);
+        void operator=(TCPSocket&& other);
+
+        TCPSocket(const TCPSocket& other) = delete;
+        void operator=(const TCPSocket& other) = delete;
+
+        bool close();
 
         int descriptor() const;
 

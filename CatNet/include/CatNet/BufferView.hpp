@@ -6,11 +6,11 @@
 
 namespace CatNet
 {
-    class BufferSnapshot
+    class BufferView
     {
 
     public:
-        BufferSnapshot(Buffer &buffer);
+        BufferView(Buffer &buffer);
         
         int32_t int32();
         int16_t int16();

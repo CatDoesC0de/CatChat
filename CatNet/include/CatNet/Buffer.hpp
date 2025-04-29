@@ -4,7 +4,6 @@
 #include <cstdint>
 #include <memory>
 
-
 namespace CatNet
 {
 
@@ -16,11 +15,11 @@ namespace CatNet
     public:
         Buffer(unsigned int sizeBytes);
 
-        void int16(int16_t value);
-        void int32(int32_t value);
-        void string(std::string& string);
+        Buffer& int16(int16_t value);
+        Buffer& int32(int32_t value);
+        Buffer& string(std::string& string);
 
-        int receive(TCPSocket socket);
+        int receive(const TCPSocket& socket);
 
         uint8_t *get();
         void reserve(size_t capacityInBytes);

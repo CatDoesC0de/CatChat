@@ -1,6 +1,6 @@
 #include "ConnectionHandler.hpp"
 
-#include "CatNet/BufferSnapshot.hpp"
+#include "CatNet/BufferView.hpp"
 
 #include <iostream>
 
@@ -22,14 +22,14 @@ void ConnectionHandler::poll()
                 auto clientOptional = listeningSocket.accept();
                 if (clientOptional.has_value())
                 {
-                    auto clientSocket = clientOptional.value();
+                    CatNet::TCPSocket& clientSocket = clientOptional.value();
 
                     pollfd pollInfo = pollfd{clientSocket.descriptor(), POLLIN, 0};
 
                     std::cout << "Accepted incoming connection.\n";
 
                     m_pollList.push_back(pollInfo);
-                    m_connections.push_back(Connection(&m_pollList[m_pollList.size() - 1]));
+                    m_connections.push_back(Connection(&m_pollList[m_pollList.size() - 1], clientSocket));
                 }
             }
 
@@ -41,7 +41,7 @@ void ConnectionHandler::poll()
                 {
 
                     CatNet::Buffer &buffer = connection.buffer;
-                    int bytesReceived = buffer.receive(connection.socket());
+                    int bytesReceived = buffer.receive(connection.socket);
 
                     if (bytesReceived == -1)
                     {
@@ -65,7 +65,7 @@ void ConnectionHandler::poll()
                     {
                         if (buffer.size() == buffer.capacity())
                         {
-                            CatNet::BufferSnapshot snapshot(buffer);
+                            CatNet::BufferView snapshot(buffer);
                             uint16_t packetSize = snapshot.int16();
 
                             std::cout << "Packet Size: " << packetSize << " bytes\n";
@@ -95,12 +95,7 @@ void ConnectionHandler::poll()
     }
 }
 
-Connection::Connection(pollfd* _pollInfo)
-    : pollInfo(_pollInfo), buffer(CatNet::Buffer(2)), processState(PACKET_SIZE)
+Connection::Connection(pollfd* _pollInfo, CatNet::TCPSocket& socket)
+    : pollInfo(_pollInfo), socket(std::move(socket)), buffer(CatNet::Buffer(2)), processState(PACKET_SIZE)
 {
-}
-
-CatNet::TCPSocket Connection::socket() const
-{
-    return CatNet::TCPSocket(pollInfo->fd);
 }

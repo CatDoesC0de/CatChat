@@ -1,4 +1,4 @@
-#include "BufferSnapshot.hpp"
+#include "BufferView.hpp"
 
 #include <cstring>
 #include <arpa/inet.h>
@@ -7,28 +7,28 @@
 namespace CatNet
 {
 
-    BufferSnapshot::BufferSnapshot(Buffer &buffer)
+    BufferView::BufferView(Buffer &buffer)
         : 
         m_buffer(buffer.get()), 
         m_readIndex(0), 
         m_readLimit(buffer.size())
     {}
 
-    int32_t BufferSnapshot::int32()
+    int32_t BufferView::int32()
     {
         int32_t value;
         read(&value, sizeof(int32_t));
         return ntohl(value);
     }
 
-    int16_t BufferSnapshot::int16()
+    int16_t BufferView::int16()
     {
         int16_t value;
         read(&value, sizeof(int16_t));
         return ntohs(value);
     }
 
-    std::string BufferSnapshot::string()
+    std::string BufferView::string()
     {
         int32_t stringLength = int32();
 
@@ -45,7 +45,7 @@ namespace CatNet
         return string;
     }
 
-    void BufferSnapshot::read(void *destination, size_t sizeInBytes)
+    void BufferView::read(void *destination, size_t sizeInBytes)
     {
         if (m_readIndex + sizeInBytes > m_readLimit)
         {

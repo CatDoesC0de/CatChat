@@ -8,6 +8,8 @@ set(CMAKE_BUILD_TYPE Debug)
 
 project(CatChat)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS On)
+
 add_subdirectory(CatNet)
 add_subdirectory(Server)
 add_subdirectory(Client)

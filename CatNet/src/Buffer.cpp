@@ -26,25 +26,25 @@ namespace CatNet
         m_limit += sizeInBytes;
     }
 
-    void Buffer::int16(int16_t value)
+    Buffer& Buffer::int16(int16_t value)
     {
         value = htons(value);
         write(&value, sizeof(int16_t));
     }
 
-    void Buffer::int32(int32_t value)
+    Buffer& Buffer::int32(int32_t value)
     {
         value = htonl(value);
         write(&value, sizeof(int32_t));
     }
 
-    void Buffer::string(std::string &string)
+    Buffer& Buffer::string(std::string &string)
     {
         int32(string.length());
         write(string.c_str(), string.length());
     }
 
-    int Buffer::receive(TCPSocket socket)
+    int Buffer::receive(const TCPSocket& socket)
     {
         int bytesReceived =  recv(socket.descriptor(), m_buffer.get(), m_capacity - m_limit, 0);
         m_limit += bytesReceived;

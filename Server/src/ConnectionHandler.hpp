@@ -12,11 +12,10 @@ enum PacketProcessState
 
 struct Connection
 {
-    Connection(pollfd* _pollInfo);
-
-    CatNet::TCPSocket socket() const;
+    Connection(pollfd* _pollInfo, CatNet::TCPSocket& socket);
 
     pollfd* pollInfo;
+    CatNet::TCPSocket socket;
     CatNet::Buffer buffer;
     PacketProcessState processState;
 };
