@@ -2,12 +2,8 @@
 
 #include "CatNet/TCPSocket.hpp"
 #include "CatNet/Buffer.hpp"
-#include "CatNet/BufferView.hpp"
 
-#include "ConnectionHandler.hpp"
-
-#include <vector>
-#include <poll.h>
+#include "network_loop.hpp"
 
 #define PORT 7000
 
@@ -39,6 +35,5 @@ int main()
 
     listeningSocket.blocking(false);
 
-    ConnectionHandler connectionHandler(std::move(listeningSocket));
-    connectionHandler.poll();
+    poll(listeningSocket);
 }

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <string>
 #include <optional>
 
 #include "Buffer.hpp"
@@ -29,7 +28,7 @@ namespace CatNet
         bool listen(int backlog);
 
         bool connect(const char *ip, uint16_t port);
-        std::optional<TCPSocket> accept();
+        std::optional<TCPSocket> accept() const ;
 
         int send(Buffer &buffer);
 

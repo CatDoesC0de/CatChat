@@ -32,13 +32,13 @@ namespace CatNet
     TCPSocket::TCPSocket(TCPSocket&& other)
     {
         m_descriptor = other.m_descriptor;
-        other.m_descriptor -= -1;
+        other.m_descriptor = -1;
     }
 
     void TCPSocket::operator=(TCPSocket&& other)
     {
         m_descriptor = other.m_descriptor;
-        other.m_descriptor -= -1;
+        other.m_descriptor = -1;
     }
 
     int TCPSocket::descriptor() const
@@ -73,7 +73,7 @@ namespace CatNet
         return ::close(m_descriptor) == 0;
     }
 
-    std::optional<TCPSocket> TCPSocket::accept()
+    std::optional<TCPSocket> TCPSocket::accept() const
     {
         int descriptor = ::accept(m_descriptor, nullptr, nullptr);
 

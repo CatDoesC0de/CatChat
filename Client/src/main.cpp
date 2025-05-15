@@ -4,7 +4,8 @@
 
 int main()
 {
-    auto socket = CatNet::TCPSocket::Create().value();
+    auto socket = std::move(CatNet::TCPSocket::Create().value());
+
     if (!socket.connect("127.0.0.1", 7000))
     {
         std::cerr << "Failed to connect to remote host.\n";

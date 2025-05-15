@@ -1,25 +1,30 @@
-#include "ConnectionHandler.hpp"
+#include "network_loop.hpp"
 
 #include "CatNet/BufferView.hpp"
 
+#include <vector>
 #include <iostream>
 
-ConnectionHandler::ConnectionHandler(CatNet::TCPSocket listeningSocket)
-{
-    m_pollList.push_back(pollfd{listeningSocket.descriptor(), POLLIN, 0});
-}
+inline static std::vector<pollfd> g_pollList;
+inline static std::vector<Connection> g_connections;
 
-void ConnectionHandler::poll()
+Connection::Connection(pollfd* _pollInfo, CatNet::TCPSocket _socket)
+    : pollInfo(_pollInfo), socket(std::move(_socket)), buffer(CatNet::Buffer(2)), processState(PACKET_SIZE)
+{}
+
+void poll(const CatNet::TCPSocket& listeningSocket)
 {
+    g_pollList.push_back(pollfd{listeningSocket.descriptor(), POLLIN, 0});
+
     while (true)
     {
-        if (::poll(m_pollList.data(), m_pollList.size(), 1) > 0)
+        if (::poll(g_pollList.data(), g_pollList.size(), 1) > 0)
         {
-            if (m_pollList[0].revents & POLLIN)
+            if (g_pollList[0].revents & POLLIN)
             {
-                CatNet::TCPSocket listeningSocket(m_pollList[0].fd);
 
                 auto clientOptional = listeningSocket.accept();
+
                 if (clientOptional.has_value())
                 {
                     CatNet::TCPSocket& clientSocket = clientOptional.value();
@@ -28,14 +33,14 @@ void ConnectionHandler::poll()
 
                     std::cout << "Accepted incoming connection.\n";
 
-                    m_pollList.push_back(pollInfo);
-                    m_connections.push_back(Connection(&m_pollList[m_pollList.size() - 1], clientSocket));
+                    g_pollList.push_back(pollInfo);
+                    g_connections.push_back(Connection(&g_pollList[g_pollList.size() - 1], std::move(clientSocket)));
                 }
             }
 
-            for (size_t i = 0; i < m_connections.size(); i++)
+            for (size_t i = 0; i < g_connections.size(); i++)
             {
-                Connection &connection = m_connections[i];
+                Connection &connection = g_connections[i];
 
                 if (connection.pollInfo->revents & POLLIN)
                 {
@@ -53,8 +58,8 @@ void ConnectionHandler::poll()
                     {
                         std::cout << "Connection close from client.\n";
                         
-                        m_connections.erase(m_connections.begin() + i);
-                        m_pollList.erase(m_pollList.begin() + i + 1);
+                        g_connections.erase(g_connections.begin() + i);
+                        g_pollList.erase(g_pollList.begin() + i + 1);
                         continue;
                     }
 
@@ -93,9 +98,4 @@ void ConnectionHandler::poll()
             }
         }
     }
-}
-
-Connection::Connection(pollfd* _pollInfo, CatNet::TCPSocket& socket)
-    : pollInfo(_pollInfo), socket(std::move(socket)), buffer(CatNet::Buffer(2)), processState(PACKET_SIZE)
-{
 }

@@ -30,18 +30,21 @@ namespace CatNet
     {
         value = htons(value);
         write(&value, sizeof(int16_t));
+        return *this;
     }
 
     Buffer& Buffer::int32(int32_t value)
     {
         value = htonl(value);
         write(&value, sizeof(int32_t));
+        return *this;
     }
 
     Buffer& Buffer::string(std::string &string)
     {
         int32(string.length());
         write(string.c_str(), string.length());
+        return *this;
     }
 
     int Buffer::receive(const TCPSocket& socket)
