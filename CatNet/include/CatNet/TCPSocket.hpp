@@ -1,28 +1,24 @@
-#pragma once
+#ifndef H_TCPSOCKET
+#define H_TCPSOCKET
 
 #include <cstdint>
 #include <optional>
 
-#include "Buffer.hpp"
-
 namespace CatNet
 {
 
-    class TCPSocket
+    struct TCPSocket
     {
-    public:
         TCPSocket(int descriptor);
         ~TCPSocket();
 
         TCPSocket(TCPSocket&& other);
-        void operator=(TCPSocket&& other);
+        TCPSocket& operator=(TCPSocket&& other);
 
         TCPSocket(const TCPSocket& other) = delete;
-        void operator=(const TCPSocket& other) = delete;
+        TCPSocket& operator=(const TCPSocket& other) = delete;
 
         bool close();
-
-        int descriptor() const;
 
         bool bind(const char *ip, uint16_t port);
         bool listen(int backlog);
@@ -30,13 +26,15 @@ namespace CatNet
         bool connect(const char *ip, uint16_t port);
         std::optional<TCPSocket> accept() const ;
 
-        int send(Buffer &buffer);
+        std::size_t send(void* source, std::size_t bytes) const;
+        std::size_t receive(void* destination, std::size_t bytes) const;
 
-        bool blocking(bool isBlocking);
+        bool setBlocking(bool isBlocking);
 
         static std::optional<TCPSocket> Create();
 
-    private:
-        int m_descriptor;
+        int descriptor;
     };
 }
+
+#endif

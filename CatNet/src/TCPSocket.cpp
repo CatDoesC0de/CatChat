@@ -20,7 +20,7 @@ namespace CatNet
 {
 
     TCPSocket::TCPSocket(int descriptor)
-        : m_descriptor(descriptor)
+        : descriptor(descriptor)
     {
     }
 
@@ -30,69 +30,80 @@ namespace CatNet
     }
 
     TCPSocket::TCPSocket(TCPSocket&& other)
+        : descriptor(other.descriptor)
     {
-        m_descriptor = other.m_descriptor;
-        other.m_descriptor = -1;
+        other.descriptor = -1;
     }
 
-    void TCPSocket::operator=(TCPSocket&& other)
+    TCPSocket& TCPSocket::operator=(TCPSocket&& other)
     {
-        m_descriptor = other.m_descriptor;
-        other.m_descriptor = -1;
-    }
+        if (this != &other)
+        {
+            if (descriptor != -1)
+            {
+                ::close(descriptor);
+            }
 
-    int TCPSocket::descriptor() const
-    {
-        return m_descriptor;
+            descriptor = other.descriptor;
+            other.descriptor = -1;
+        }
+
+        return *this;
     }
 
     bool TCPSocket::bind(const char *ip, uint16_t port)
     {
         sockaddr_in addressInfo = buildAddressInfo(ip, port);
-        return ::bind(m_descriptor, (sockaddr *)&addressInfo, sizeof(addressInfo)) == 0;
+        return ::bind(descriptor, (sockaddr *)&addressInfo, sizeof(addressInfo)) == 0;
     }
 
     bool TCPSocket::listen(int backlog)
     {
-        return ::listen(m_descriptor, backlog) == 0;
+        return ::listen(descriptor, backlog) == 0;
     }
 
     bool TCPSocket::connect(const char *ip, uint16_t port)
     {
         sockaddr_in addressInfo = buildAddressInfo(ip, port);
-        return ::connect(m_descriptor, (sockaddr*) &addressInfo, sizeof(addressInfo)) == 0;
+        return ::connect(descriptor, (sockaddr*) &addressInfo, sizeof(addressInfo)) == 0;
     }
 
     bool TCPSocket::close()
     {
-        if (m_descriptor == -1)
+        if (descriptor == -1)
         {
             return true;
         }
 
-        return ::close(m_descriptor) == 0;
+        return ::close(descriptor) == 0;
     }
 
     std::optional<TCPSocket> TCPSocket::accept() const
     {
-        int descriptor = ::accept(m_descriptor, nullptr, nullptr);
+        int acceptedDescriptor = ::accept(descriptor, nullptr, nullptr);
 
-        if (descriptor == -1)
+        if (acceptedDescriptor == -1)
         {
             return std::nullopt;
         }
 
-        return TCPSocket(descriptor);
+        return TCPSocket(acceptedDescriptor);
     }
 
-    int TCPSocket::send(Buffer& buffer)
+    std::size_t TCPSocket::send(void* source, std::size_t bytes) const
     {
-        return ::send(m_descriptor, buffer.get(), buffer.size(), 0);
+        return ::send(descriptor, source, bytes, 0);
     }
 
-    bool TCPSocket::blocking(bool isBlocking)
+
+    std::size_t TCPSocket::receive(void* destination, std::size_t bytes) const
     {
-        return ::fcntl(m_descriptor, F_SETFL, isBlocking ? ~O_NONBLOCK : O_NONBLOCK) == 0;
+        return ::recv(descriptor, destination, bytes, 0);
+    }
+
+    bool TCPSocket::setBlocking(bool isBlocking)
+    {
+        return ::fcntl(descriptor, F_SETFL, isBlocking ? ~O_NONBLOCK : O_NONBLOCK) == 0;
     }
 
     std::optional<TCPSocket> TCPSocket::Create()

@@ -1,6 +1,8 @@
 #include <iostream>
 
 #include "CatNet/TCPSocket.hpp"
+#include "CatNet/Buffer.hpp"
+#include "CatNet/packets/serverbound/ServerboundLoginPacket.hpp"
 
 int main()
 {
@@ -13,14 +15,11 @@ int main()
     }
 
     std::cout << "Connected to remote host...\n";
+    
+    CatNet::ServerboundLoginPacket packet = {};
+    packet.requestedUsername = "Zlaio";
 
-    CatNet::Buffer buffer(8000 + 2);
-    buffer.int16(8000);
-    for (int i = 0; i < (8000 / 4); i++)
-    {
-        buffer.int32(i);
-    }
-
-    int bytesSent = socket.send(buffer);
-    std::cout << "Bytes Sent: " << bytesSent << '\n';
+    CatNet::Buffer buffer(1024);
+    packet.encode(buffer);
+    buffer.read(socket, buffer.readable_bytes());
 }
