@@ -3,16 +3,17 @@
 
 #include "BufferView.hpp"
 
-#define PACKET_HEADER_LENGTH sizeof(int8_t) //1 byte for packet ID
+#define PACKET_HEADER_LENGTH sizeof(int32_t) + sizeof(int8_t) //4 byte length prefix + 1 byte packet ID
 
 namespace CatNet
 {
-    inline std::size_t encoded_string_size(const std::string& string) { return sizeof(int32_t) + string.size(); }
-
     struct Packet 
     {
-        virtual void encode(CatNet::BufferView &writer) const = 0;
+        virtual int8_t id() const = 0;
+        virtual void encode(CatNet::BufferView& writer) const = 0;
     };
+
+    void encode_packet_with_header(const Packet& packet, BufferView& view);
 } 
 
 #endif

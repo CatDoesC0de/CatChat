@@ -5,10 +5,13 @@ namespace CatNet
 
     void ServerboundLoginPacket::encode(CatNet::BufferView &writer) const
     {
-        int32_t encodedSize = PACKET_HEADER_LENGTH + encoded_string_size(requestedUsername);
-        writer.write_int32(encodedSize);
-        writer.write_int8(id());
         writer.write_string(requestedUsername);
+    }
+
+
+    int8_t ServerboundLoginPacket::id() const
+    {
+        return 0x00;
     }
 
     ServerboundLoginPacket ServerboundLoginPacket::decode(BufferView& reader)

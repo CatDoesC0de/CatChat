@@ -9,8 +9,9 @@ namespace CatNet
     struct ServerboundLoginPacket : public Packet
     {
         void encode(BufferView &writer) const override;
+        int8_t id() const override;
+
         static ServerboundLoginPacket decode(BufferView& reader);
-        inline static int8_t id() { return 0x00; }
 
         std::string requestedUsername;
     };

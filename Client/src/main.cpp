@@ -17,9 +17,9 @@ int main()
     std::cout << "Connected to remote host...\n";
     
     CatNet::ServerboundLoginPacket packet = {};
-    packet.requestedUsername = "Zlaio";
+    std::cin >> packet.requestedUsername;
 
     CatNet::Buffer buffer(1024);
-    packet.encode(buffer);
-    buffer.read(socket, buffer.readable_bytes());
+    encode_packet_with_header(packet, buffer);
+    buffer.send(socket, buffer.readable_bytes());
 }

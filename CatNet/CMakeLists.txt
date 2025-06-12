@@ -4,6 +4,7 @@ add_library(${PROJECT_NAME} STATIC
     src/TCPSocket.cpp 
     src/BufferView.cpp 
     src/Buffer.cpp
+    src/Packet.cpp
 
     src/packets/serverbound/ServerboundLoginPacket.cpp
 )

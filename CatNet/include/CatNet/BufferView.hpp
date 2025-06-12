@@ -21,12 +21,14 @@ namespace CatNet
 
         std::size_t write(const TCPSocket& socket, std::size_t bytes);
         std::size_t writeable_bytes() const;
+        void set_write_offset(std::size_t offset);
 
         int8_t      read_int8();
         int32_t     read_int32();
         std::string read_string();
+        void set_read_offset(std::size_t offset);
 
-        std::size_t read(const TCPSocket& socket, std::size_t bytes);
+        std::size_t send(const TCPSocket& socket, std::size_t bytes);
         std::size_t readable_bytes() const;
 
     protected:

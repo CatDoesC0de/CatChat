@@ -65,6 +65,11 @@ namespace CatNet
         return _limit - _writeOffset;
     }
 
+    void BufferView::set_write_offset(std::size_t offset)
+    {
+        _writeOffset = offset;
+    }
+
     void BufferView::read(void* destination, std::size_t sizeInBytes)
     {
         if (readable_bytes() < sizeInBytes)
@@ -78,7 +83,9 @@ namespace CatNet
 
     int8_t BufferView::read_int8()
     {
-        return *(_buffer + _readOffset);
+        int8_t value =  *(_buffer + _readOffset);
+        _readOffset += sizeof(int8_t);
+        return value;
     }
 
     int32_t BufferView::read_int32() 
@@ -97,7 +104,12 @@ namespace CatNet
         return result;
     }
 
-    std::size_t BufferView::read(const TCPSocket& socket, std::size_t bytes)
+    void BufferView::set_read_offset(std::size_t offset)
+    {
+        _readOffset = offset;
+    }
+
+    std::size_t BufferView::send(const TCPSocket& socket, std::size_t bytes)
     {
         int bytesSent = socket.send(_buffer + _readOffset, bytes);
         _readOffset += bytesSent;
